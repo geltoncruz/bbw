@@ -27,10 +27,6 @@ class HomePage extends StatefulWidget {
     items.add(Item(title: "Luísa Mahin", done: true));
     items.add(Item(title: "Teresa de Benguela", done: true));
     items.add(Item(title: "Maria Filipa de Oliveira", done: true));
-    items.add(Item(title: "Aqualtune", done: false));
-    items.add(Item(title: "Dandara", done: false));
-    items.add(Item(title: "Carolina de Jesus", done: false));
-    items.add(Item(title: "Leila Gonzalez ", done: false));
   }
   @override
   _HomePageState createState() => _HomePageState();
@@ -40,11 +36,18 @@ class _HomePageState extends State<HomePage> {
   var nameController = new TextEditingController();
 
   void add() {
+    if (nameController.text.isEmpty) return;
     setState(() {
       widget.items.add(
         Item(title: nameController.text, done: false),
       );
       nameController.clear();
+    });
+  }
+
+  void remove(int index) {
+    setState(() {
+      widget.items.removeAt(index);
     });
   }
 
@@ -71,15 +74,26 @@ class _HomePageState extends State<HomePage> {
         itemCount: widget.items.length,
         itemBuilder: (BuildContext ctx, int index) {
           final item = widget.items[index];
-          return CheckboxListTile(
-            title: Text(item.title),
-            value: item.done,
+          return Dismissible(
+            child: CheckboxListTile(
+              title: Text(item.title),
+              value: item.done,
+              onChanged: (value) {
+                setState(() {
+                  item.done = value;
+                });
+              },
+            ),
             key: Key(item.title),
-            onChanged: (value) {
-              setState(() {
-                item.done = value;
-              });
-              print(value);
+            background: Container(
+              color: Colors.red.withOpacity(0.2),
+            ),
+            onDismissed: (direction) {
+              if (direction == DismissDirection.startToEnd) {
+                remove(index);
+              } else {
+                return;
+              }
             },
           );
         },
